@@ -32,7 +32,7 @@ fn prepare(
   // Spawna o sprite
   commands.spawn(SpriteBundle {
     texture: game_sprites.idle.clone(),
-    transform: Transform::from_scale(Vec3::new(0.5, 0.5, 1.0)),
+    transform: Transform::from_scale(Vec3::new(0.3, 0.3, 1.0)),
     ..default()
   });
   commands
