@@ -1,4 +1,4 @@
-use bevy::ecs::component::Component;
+use bevy::{ecs::component::Component, sprite::Sprite};
 
 #[derive(Component)]
 pub struct Player {

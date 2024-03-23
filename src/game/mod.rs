@@ -6,19 +6,30 @@ use bevy::{
 };
 
 use self::components::Player;
+use self::sprite::GameSprites;
 
+mod sprite;
 mod components;
 
-fn prepare(mut commands: Commands, asset_server: Res<AssetServer>) {
+fn prepare(
+  mut commands: Commands,
+  asset_server: Res<AssetServer>,
+  mut game_sprites: ResMut<GameSprites>,
+) {
   // Spawna o player
   commands.spawn(Player::new());
 
   // Spawna a camera
   commands.spawn(Camera2dBundle::default());
 
+  // Faz o load dos sprites
+  game_sprites.idle = asset_server.load("sprites/sprite_0.png");
+  game_sprites.prepare = asset_server.load("sprites/sprite_1.png");
+  game_sprites.impact = asset_server.load("sprites/sprite_2.png");
+
   // Spawna o sprite
   commands.spawn(SpriteBundle {
-    texture: asset_server.load("sprites/sprite_0.png"),
+    texture: game_sprites.idle.clone(),
     transform: Transform::from_scale(Vec3::new(0.5, 0.5, 1.0)),
     ..default()
   });
@@ -62,12 +73,14 @@ fn prepare(mut commands: Commands, asset_server: Res<AssetServer>) {
   });
 }
 
-fn handle_input(buttons: Res<ButtonInput<MouseButton>>, mut players: Query<&mut Player>) {
+fn handle_input(
+  buttons: Res<ButtonInput<MouseButton>>,
+  mut players: Query<&mut Player>,
+) {
   for mut player in &mut players {
     if buttons.just_pressed(MouseButton::Left) {
       player.coins += 1;
       player.clicks += 1;
-
       println!("coins: {} - clicks: {}", player.coins, player.clicks);
     }
   }
@@ -94,6 +107,7 @@ pub struct ClickerGamePlugin;
 impl Plugin for ClickerGamePlugin {
   fn build(&self, app: &mut bevy::prelude::App) {
     app.insert_resource(WinitSettings::desktop_app());
+    app.insert_resource(GameSprites::default());
     app.add_systems(Update, button_system);
     app.add_systems(Startup, prepare);
     app.add_systems(Update, handle_input);

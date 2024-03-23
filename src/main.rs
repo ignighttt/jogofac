@@ -1,13 +1,5 @@
 use bevy::{
-  app::{App, Startup, Update},
-  ecs::{
-    bundle,
-    component::Component,
-    query::With,
-    system::{Commands, Query},
-  },
-  scene::ron::Number,
-  winit::WinitSettings,
+  app::App,
   DefaultPlugins,
 };
 use game::ClickerGamePlugin;
