@@ -1,3 +1,5 @@
+use std::fmt;
+
 use bevy::prelude::*;
 use bevy::{
   app::{Plugin, Startup},
@@ -49,7 +51,7 @@ fn prepare(
     parent
     .spawn(ButtonBundle {
       style: Style {
-        width: Val::Px(150.0),
+        width: Val::Px(450.0),
         height: Val::Px(65.0),
         border: UiRect::all(Val::Px(5.0)),
         justify_content: JustifyContent::Center,
@@ -79,7 +81,7 @@ fn handle_input(
 ) {
   for mut player in &mut players {
     if buttons.just_pressed(MouseButton::Left) {
-      player.coins += 1;
+      player.coins += player.multiplier as u64 * 1;
       player.clicks += 1;
       println!("coins: {} - clicks: {}", player.coins, player.clicks);
     }
@@ -87,6 +89,9 @@ fn handle_input(
 }
 
 const NORMAL_BUTTON: Color = Color::rgb(0.15, 0.15, 0.15);
+const HOVERED_BUTTON: Color = Color::rgb(0.25, 0.25, 0.25);
+const PRESSED_BUTTON: Color = Color::rgb(0.35, 0.75, 0.35);
+
 
 fn button_system(
   mut interaction_query: Query<
@@ -99,7 +104,41 @@ fn button_system(
   (Changed<Interaction>, With<Button>),
   >,
   mut text_query: Query<&mut Text>,
+  mut player_query: Query<&mut Player>,
 ) {
+  for (interaction, mut color, mut border_color, children) in &mut interaction_query {
+    let mut text = text_query.get_mut(children[0]).unwrap();
+    match *interaction {
+      Interaction::Pressed => {
+        *color = PRESSED_BUTTON.into();
+        border_color.0 = Color::RED;
+        for mut player in &mut player_query {
+          if player.coins >= player.multiplier_cost {
+            player.coins -= player.multiplier_cost;
+            player.multiplier_cost += (player.multiplier_cost as f64 * 0.1) as u64;
+            player.multiplier += 1;
+          }
+        }
+        for player in &mut player_query {
+          text.sections[0].value = format!("Multiplier x{} - Next: {}", player.multiplier, player.multiplier_cost);
+        }
+      }
+      Interaction::Hovered => {
+        for player in &mut player_query {
+          text.sections[0].value = format!("Multiplier x{} - Next: {}", player.multiplier, player.multiplier_cost);
+        }
+        *color = HOVERED_BUTTON.into();
+        border_color.0 = Color::WHITE;
+      }
+      Interaction::None => {
+        for player in &mut player_query {
+          text.sections[0].value = format!("Multiplier x{} - Next: {}", player.multiplier, player.multiplier_cost);
+        }
+        *color = NORMAL_BUTTON.into();
+        border_color.0 = Color::BLACK;
+      }
+    }
+  }
 }
 
 pub struct ClickerGamePlugin;
