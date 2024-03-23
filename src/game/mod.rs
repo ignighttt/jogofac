@@ -1,9 +1,7 @@
 use bevy::prelude::*;
 use bevy::{
   app::{Plugin, Startup},
-  ecs::{query, system::Commands},
-  render::color,
-  ui::update,
+  ecs::system::Commands,
   winit::WinitSettings,
 };
 
@@ -13,14 +11,14 @@ mod components;
 
 fn prepare(mut commands: Commands, asset_server: Res<AssetServer>) {
   // Spawna o player
-  commands.spawn((Player::new()));
+  commands.spawn(Player::new());
 
   // Spawna a camera
   commands.spawn(Camera2dBundle::default());
 
   // Spawna o sprite
   commands.spawn(SpriteBundle {
-    texture: asset_server.load("cookie_texture.png"),
+    texture: asset_server.load("sprites/sprite_0.png"),
     transform: Transform::from_scale(Vec3::new(0.5, 0.5, 1.0)),
     ..default()
   });
